@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบ SolidWorks - ครบชุด 90 ข้อ (Part, Assembly, Drawing)</title>
+    <!-- โหลด Tailwind CSS เพื่อความสวยงาม -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #e5e7eb;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+        .option-selected {
+            background-color: #eff6ff !important;
+            border-color: #3b82f6 !important;
+            color: #1d4ed8 !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- คอนเทนเนอร์หลัก -->
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 sm:p-10 transition-all duration-300">
+        
+        <!-- ส่วนหัว -->
+        <div class="text-center mb-8 border-b pb-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-red-600 mb-2">
+                <span class="text-gray-800">แบบทดสอบ</span> SolidWorks
+            </h1>
+            <p class="text-gray-500 text-sm sm:text-base">หมวดหมู่: Part Modeling, Assembly และ Drawing (รวม 90 ข้อ)</p>
+        </div>
+
+        <!-- หน้าจอแสดงแบบทดสอบ -->
+        <div id="quiz-screen">
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
+                <div class="flex items-center gap-2">
+                    <span id="question-progress" class="text-sm font-medium text-gray-500 bg-gray-100 py-1 px-3 rounded-full shadow-sm border border-gray-200">
+                        ข้อ 1 / 90
+                    </span>
+                    <span id="category-badge" class="text-sm font-medium text-purple-700 bg-purple-100 py-1 px-3 rounded-full shadow-sm border border-purple-200">
+                        Part Modeling
+                    </span>
+                </div>
+                <span id="score-live" class="text-sm font-medium text-blue-600 bg-blue-50 py-1 px-3 rounded-full border border-blue-100 shadow-sm">
+                    คะแนนปัจจุบัน: 0
+                </span>
+            </div>
+
+            <h2 id="question-text" class="text-lg sm:text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                <!-- คำถามจะถูกโหลดมาที่นี่ -->
+            </h2>
+
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- ตัวเลือกจะถูกสร้างขึ้นที่นี่ด้วย JavaScript -->
+            </div>
+
+            <div class="flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" disabled class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 shadow-md">
+                    ยืนยันคำตอบ
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าจอแสดงผลคะแนนรวม -->
+        <div id="result-screen" class="hidden text-center py-8">
+            <div class="mb-6">
+                <svg class="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">สรุปผลคะแนนของคุณ</h2>
+            <p class="text-gray-600 mb-6">คุณทำแบบทดสอบเสร็จสิ้นครบ 90 ข้อแล้ว!</p>
+            
+            <div class="bg-gray-50 rounded-xl p-6 mb-8 inline-block border border-gray-200 shadow-sm">
+                <p class="text-5xl font-extrabold text-blue-600" id="final-score">
+                    0 / 90
+                </p>
+                <p class="text-lg text-gray-500 mt-3" id="score-message">
+                    พยายามได้ดีมาก!
+                </p>
+            </div>
+
+            <div class="flex justify-center">
+                <button onclick="restartQuiz()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-8 rounded-lg shadow-md transition-colors duration-200 w-full sm:w-auto">
+                    ลองทำใหม่อีกครั้ง
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript สำหรับควบคุมระบบ Quiz -->
+    <script>
+        // ข้อมูลข้อสอบ 90 ข้อ (Part 30, Assembly 30, Drawing 30)
+        const quizData = [
+            // ================= PART MODELING (30 ข้อ) =================
+            { category: "Part Modeling", question: "นามสกุลไฟล์ของชิ้นงาน (Part) ในโปรแกรม SolidWorks คืออะไร?", options: [".slddrw", ".sldasm", ".sldprt", ".dwg"], answer: 2 },
+            { category: "Part Modeling", question: "ก่อนเริ่มสร้างรูปทรง 3 มิติ (3D Feature) โดยทั่วไปต้องทำสิ่งใดก่อนเป็นอันดับแรก?", options: ["เรนเดอร์ชิ้นงาน (Render)", "สร้าง Sketch 2 มิติ", "เลือกวัสดุ (Material)", "ทำภาพฉาย (Drawing)"], answer: 1 },
+            { category: "Part Modeling", question: "คำสั่งใดใช้สำหรับดึงเส้น Sketch 2D ให้มีความหนาหรือยืดออกเป็นรูปทรง 3D?", options: ["Extruded Boss/Base", "Revolved Boss/Base", "Swept Boss/Base", "Lofted Boss/Base"], answer: 0 },
+            { category: "Part Modeling", question: "คำสั่งใดใช้สำหรับ 'เจาะเนื้อชิ้นงาน' ให้เป็นรูหรือทะลุตามรูปทรงที่วาดไว้?", options: ["Extruded Cut", "Fillet", "Shell", "Chamfer"], answer: 0 },
+            { category: "Part Modeling", question: "หากต้องการลบมุมชิ้นงานให้มี 'ความโค้งมน' ต้องใช้คำสั่งใด?", options: ["Chamfer", "Draft", "Fillet", "Mirror"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่งใดใช้กำหนดขนาด (ความกว้าง ความยาว มุม) ให้กับเส้นในโหมด Sketch อย่างแม่นยำ?", options: ["Measure", "Smart Dimension", "Scale", "Offset Entities"], answer: 1 },
+            { category: "Part Modeling", question: "หากต้องการสร้างชิ้นงานรูปทรงกระบอก หรือรูปทรงที่เกิดจากการหมุนรอบแกน ควรใช้คำสั่งใด?", options: ["Extruded Boss/Base", "Swept Boss/Base", "Revolved Boss/Base", "Boundary Boss/Base"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่ง Shell ในโหมด Part มีหน้าที่ทำอะไร?", options: ["ทำให้ผิวชิ้นงานเรียบเนียน", "เพิ่มความหนาให้กับพื้นผิว (Surface)", "ตัดชิ้นงานออกครึ่งหนึ่ง", "ทำให้ชิ้นงานกลวงโดยกำหนดความหนาของผนังได้"], answer: 3 },
+            { category: "Part Modeling", question: "หากต้องการปาดมุมหรือลบคมชิ้นงานให้เป็น 'เหลี่ยมตัดตรง' (ไม่โค้งมน) ต้องใช้คำสั่งใด?", options: ["Fillet", "Chamfer", "Trim", "Extrude Cut"], answer: 1 },
+            { category: "Part Modeling", question: "ระนาบ (Plane) พื้นฐานที่โปรแกรมมีให้เริ่มต้นสำหรับวาด Sketch มีกี่ระนาบ และชื่ออะไรบ้าง?", options: ["2 ระนาบ (Top, Bottom)", "3 ระนาบ (Front, Top, Right)", "4 ระนาบ (North, South, East, West)", "ไม่มีระนาบเริ่มต้น ต้องสร้างเองเสมอ"], answer: 1 },
+            { category: "Part Modeling", question: "สัญลักษณ์ความสัมพันธ์ (Relation) ที่บังคับให้เส้นตรงอยู่ในแนวดิ่ง (แนวตั้ง) คืออะไร?", options: ["Horizontal", "Vertical", "Parallel", "Perpendicular"], answer: 1 },
+            { category: "Part Modeling", question: "ความสัมพันธ์ (Relation) ใดใช้สำหรับผูกจุดสองจุดให้ติดเป็นจุดเดียวกัน?", options: ["Concentric", "Tangent", "Coincident", "Midpoint"], answer: 2 },
+            { category: "Part Modeling", question: "หากต้องการคัดลอก Feature ให้สมมาตรกันอีกฝั่งคล้ายการส่องกระจก ต้องใช้คำสั่งใด?", options: ["Linear Pattern", "Mirror", "Copy", "Move"], answer: 1 },
+            { category: "Part Modeling", question: "การสร้าง Feature ซ้ำๆ ให้เรียงตัวกันเป็นเส้นตรงหรือตามแนวแกน เรียกว่าอะไร?", options: ["Linear Pattern", "Circular Pattern", "Sketch Driven Pattern", "Fill Pattern"], answer: 0 },
+            { category: "Part Modeling", question: "การสร้าง Feature ซ้ำๆ ให้เรียงตัวกันเป็นวงกลมรอบแกน เรียกว่าอะไร?", options: ["Linear Pattern", "Circular Pattern", "Curve Driven Pattern", "Mirror"], answer: 1 },
+            { category: "Part Modeling", question: "คำสั่ง Swept Boss/Base ต้องการองค์ประกอบหลักอะไรบ้างในการสร้างรูปร่าง?", options: ["หน้าตัด (Profile) อย่างเดียว", "เส้นทาง (Path) อย่างเดียว", "หน้าตัด (Profile) และ เส้นทาง (Path)", "จุดเริ่มต้นและจุดสิ้นสุด"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่ง Lofted Boss/Base แตกต่างจาก Extrude อย่างไร?", options: ["ใช้ลบมุมได้ดีกว่า", "สร้างรูปทรงจากการเชื่อมหน้าตัด (Profile) หลายอันที่มีรูปร่างต่างกันได้", "ใช้สำหรับตัดชิ้นงานเท่านั้น", "สร้างรูปทรงกระบอกได้เร็วกว่า"], answer: 1 },
+            { category: "Part Modeling", question: "เครื่องมือใดใช้สำหรับวัดระยะทาง มุม และพื้นที่ผิวของชิ้นงาน 3 มิติ?", options: ["Ruler", "Measure", "Smart Dimension", "Dimension"], answer: 1 },
+            { category: "Part Modeling", question: "หากต้องการกำหนดให้ชิ้นงานทำจากวัสดุจริง เช่น เหล็กกล้า (Steel) ต้องเข้าไปตั้งค่าที่ใด?", options: ["Edit Sketch", "Edit Feature", "Edit Material", "Edit Appearance"], answer: 2 },
+            { category: "Part Modeling", question: "การหมุนดูรอบชิ้นงาน 3 มิติ (Rotate View) ด้วยเมาส์ สามารถทำได้โดยวิธีใด?", options: ["คลิกซ้ายค้างแล้วลาก", "คลิกขวาค้างแล้วลาก", "กดลูกกลิ้งเมาส์ (Middle Click) ค้างแล้วลาก", "เลื่อนลูกกลิ้งเมาส์ขึ้นลง"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่ง Normal To (Ctrl+8) มีหน้าที่อะไร?", options: ["ปรับมุมมองให้ตั้งฉากกับระนาบหรือพื้นผิวที่เลือก", "ปรับมุมมองเป็นแบบ 3 มิติ (Isometric)", "ทำให้ชิ้นงานโปร่งใส", "ยกเลิกการเลือกคำสั่ง"], answer: 0 },
+            { category: "Part Modeling", question: "เส้น Sketch ที่เป็น 'สีน้ำเงิน' (Under Defined) หมายความว่าอย่างไร?", options: ["เกิดข้อผิดพลาดในการวาด", "เส้นถูกล็อกตำแหน่งแล้ว ลากไม่ได้", "เส้นยังขาดการกำหนดขนาดหรือความสัมพันธ์ ขยับได้", "เส้นอยู่นอกพื้นที่การทำงาน"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่ง Trim Entities (โดยเฉพาะแบบ Power Trim) ใช้ทำอะไร?", options: ["วาดเส้นโค้ง", "ยืดเส้นให้ยาวขึ้น", "ตัดเส้นส่วนเกินที่ตัดทับกันทิ้งไปอย่างรวดเร็ว", "ลบเส้นทั้งหมดในคลิกเดียว"], answer: 2 },
+            { category: "Part Modeling", question: "หากต้องการสร้างเส้นขนานจากเส้นเดิมโดยกำหนดระยะห่างได้ ต้องใช้คำสั่งใดในโหมด Sketch?", options: ["Mirror Entities", "Offset Entities", "Convert Entities", "Move Entities"], answer: 1 },
+            { category: "Part Modeling", question: "คำสั่งใดใช้สำหรับคัดลอก 'ขอบ' ของชิ้นงาน 3 มิติ ให้มาเป็นเส้น Sketch 2 มิติลงบนระนาบที่กำลังทำงานอยู่?", options: ["Offset Entities", "Convert Entities", "Copy Entities", "Project Entities"], answer: 1 },
+            { category: "Part Modeling", question: "หากต้องการสร้างระนาบ (Plane) ใหม่ที่ไม่ได้มีให้ในตอนเริ่มต้น ต้องใช้คำสั่งกลุ่มใด?", options: ["Insert > Sketch", "Reference Geometry > Plane", "Evaluate > Measure", "Tools > Sketch Tools"], answer: 1 },
+            { category: "Part Modeling", question: "คำสั่ง Draft ในโหมด Part มักใช้กับงานประเภทใดมากที่สุด?", options: ["งานกลึง (Turning)", "งานกัด CNC (Milling)", "งานแม่พิมพ์ (Molding) เพื่อให้ชิ้นงานมีมุมเอียงถอดจากพิมพ์ง่ายขึ้น", "งานพับโลหะแผ่น (Sheet Metal)"], answer: 2 },
+            { category: "Part Modeling", question: "หากต้องการเจาะรูที่มีมาตรฐานอุตสาหกรรม เช่น รูฝังหัวน็อต (Counterbore) ควรใช้คำสั่งใด?", options: ["Extruded Cut", "Revolved Cut", "Hole Wizard", "Swept Cut"], answer: 2 },
+            { category: "Part Modeling", question: "หน้าต่างซ้ายมือที่เก็บประวัติการสร้างและแก้ไขชิ้นงานทุกขั้นตอน เรียกว่าอะไร?", options: ["CommandManager", "Task Pane", "FeatureManager Design Tree", "PropertyManager"], answer: 2 },
+            { category: "Part Modeling", question: "คำสั่ง Suppress ใช้ทำอะไรกับ Feature ในระบบ?", options: ["ลบ Feature ทิ้งอย่างถาวรกู้คืนไม่ได้", "ซ่อน Feature และระงับการคำนวณชั่วคราว (เสมือนไม่มี Feature นั้นอยู่)", "ทำให้ Feature เปลี่ยนสีโปร่งใส", "รวม Feature หลายๆ อันเข้าด้วยกัน"], answer: 1 },
+
+            // ================= ASSEMBLY (30 ข้อ) =================
+            { category: "Assembly", question: "นามสกุลไฟล์ของการประกอบชิ้นงาน (Assembly) ใน SolidWorks คืออะไร?", options: [".sldprt", ".sldasm", ".slddrw", ".dwg"], answer: 1 },
+            { category: "Assembly", question: "คำสั่งใดใช้สำหรับดึงชิ้นงาน (Part) เข้ามาในหน้าต่าง Assembly?", options: ["Insert Component", "Add Part", "Import Model", "Place Feature"], answer: 0 },
+            { category: "Assembly", question: "โดยปกติ ชิ้นงานแรกที่ถูกนำเข้ามาใน Assembly จะมีสถานะเป็นอย่างไร?", options: ["เคลื่อนที่ได้อย่างอิสระ (Floating)", "ถูกซ่อนไว้ (Hidden)", "ถูกตรึงให้อยู่กับที่ (Fixed)", "เป็นชิ้นงานโปร่งใส (Transparent)"], answer: 2 },
+            { category: "Assembly", question: "สัญลักษณ์ตัวอักษรใดใน FeatureManager ที่แสดงว่าชิ้นงานนั้นถูกตรึงไว้ (Fixed)?", options: ["(f)", "(-)", "(+)", "(x)"], answer: 0 },
+            { category: "Assembly", question: "คำสั่งหลักที่ใช้สำหรับกำหนดความสัมพันธ์ (เช่น ให้ผิวติดกัน) ระหว่างชิ้นงานใน Assembly คือคำสั่งใด?", options: ["Join", "Mate", "Combine", "Link"], answer: 1 },
+            { category: "Assembly", question: "ความสัมพันธ์แบบ Coincident Mate ใช้ทำอะไร?", options: ["ทำให้ชิ้นงาน 2 ชิ้นมีระยะห่างตามที่กำหนด", "ทำให้ผิวหน้าหรือเส้นขอบของ 2 ชิ้นงานมาแตะหรืออยู่ในระนาบเดียวกัน", "ทำให้ชิ้นงาน 2 ชิ้นมีมุมเอียงตามกำหนด", "ทำให้ชิ้นงานโปร่งใส"], answer: 1 },
+            { category: "Assembly", question: "หากต้องการนำเพลากลมสอดเข้าไปในรูกลมพอดี ควรใช้ Mate ชนิดใด?", options: ["Parallel Mate", "Tangent Mate", "Concentric Mate", "Perpendicular Mate"], answer: 2 },
+            { category: "Assembly", question: "Distance Mate มีหน้าที่อะไรในโหมด Assembly?", options: ["วัดระยะห่างระหว่างชิ้นงานเฉยๆ", "กำหนดระยะห่างที่แน่นอนระหว่างผิวหรือขอบของชิ้นงาน", "ทำให้ชิ้นงานเคลื่อนที่ออกห่างกันเรื่อยๆ", "ลบระยะห่างที่เคยตั้งค่าไว้"], answer: 1 },
+            { category: "Assembly", question: "เราสามารถหมุนชิ้นงานที่ยังไม่ถูก Fixed ใน Assembly ได้โดยใช้วิธีใด?", options: ["คลิกซ้ายค้างที่ชิ้นงานแล้วลาก", "คลิกขวาค้างที่ชิ้นงานแล้วลาก", "กด Spacebar ค้างไว้", "กดปุ่ม Ctrl แล้วคลิกซ้าย"], answer: 1 },
+            { category: "Assembly", question: "การคลิกซ้ายค้างที่ชิ้นงานใน Assembly แล้วลาก จะส่งผลอย่างไร (หากชิ้นงานไม่ถูก Fixed)?", options: ["เป็นการหมุนชิ้นงาน (Rotate)", "เป็นการลบชิ้นงาน (Delete)", "เป็นการย้ายตำแหน่งชิ้นงาน (Move)", "เป็นการคัดลอกชิ้นงาน (Copy)"], answer: 2 },
+            { category: "Assembly", question: "Tangent Mate มักใช้กับชิ้นงานลักษณะใด?", options: ["ผิวเรียบกับผิวเรียบ", "ผิวทรงกระบอก/ทรงกลม สัมผัสพอดีกับผิวเรียบหรือผิวโค้งอื่นๆ", "รูกลมกับเพลา", "มุมแหลมกับมุมแหลม"], answer: 1 },
+            { category: "Assembly", question: "หากต้องการให้ชิ้นส่วนอยู่กึ่งกลางระหว่าง 2 พื้นผิว (เช่น ลิ่มกึ่งกลางร่อง) ควรใช้ Advanced Mate ชนิดใด?", options: ["Distance Mate", "Symmetric Mate", "Width Mate", "Profile Center Mate"], answer: 2 },
+            { category: "Assembly", question: "Mechanical Mates ใน SolidWorks ใช้สำหรับการจำลองกลไกแบบใด?", options: ["การเคลื่อนที่ของแสง", "การทำงานของ เฟือง (Gear), แคม (Cam), และสลักเกลียว (Screw)", "การไหลของของเหลว", "การเกิดความร้อนในระบบ"], answer: 1 },
+            { category: "Assembly", question: "คำสั่ง Interference Detection มีประโยชน์อย่างไรใน Assembly?", options: ["ตรวจสอบว่ามีชิ้นงานใดเคลื่อนที่ได้บ้าง", "คำนวณน้ำหนักรวมของงานประกอบ", "ตรวจสอบว่ามีชิ้นงานใดมีเนื้อที่ซ้อนทับกัน/ชนกันอยู่หรือไม่", "สร้างภาพเรนเดอร์ให้สมจริง"], answer: 2 },
+            { category: "Assembly", question: "หากต้องการสร้างภาพแสดงการ 'ถอดแยกชิ้นส่วน' (ดึงชิ้นงานออกจากกันให้เห็นชัดเจน) ต้องใช้คำสั่งใด?", options: ["Exploded View", "Broken-out Section", "Cut Extrude", "Isolate"], answer: 0 },
+            { category: "Assembly", question: "เส้นที่ลากเชื่อมระหว่างชิ้นงานในภาพถอดแยกชิ้นส่วน เพื่อแสดงทิศทางการประกอบ เรียกว่าอะไร?", options: ["Centerline", "Explode Line Sketch", "Leader Line", "Route Line"], answer: 1 },
+            { category: "Assembly", question: "คุณสมบัติใดช่วยให้เราซ่อนชิ้นส่วนที่ไม่ต้องการเห็นชั่วคราวได้เร็วที่สุดในหน้าจอทำงาน?", options: ["ลบชิ้นส่วนทิ้งไปเลย", "เลื่อนเมาส์ไปชี้ที่ชิ้นงานแล้วกดปุ่ม Tab", "ย่อขนาดชิ้นส่วนให้เล็กที่สุด", "เปลี่ยนสีชิ้นส่วนเป็นสีขาว"], answer: 1 },
+            { category: "Assembly", question: "หากต้องการยกเลิกการซ่อน (Show) ชิ้นงานที่ซ่อนอยู่ด้วยเมาส์ ต้องกดปุ่มใดคู่กับการชี้เมาส์?", options: ["Shift + Tab", "Ctrl + Tab", "Alt + Tab", "Spacebar"], answer: 0 },
+            { category: "Assembly", question: "คำสั่ง Pack and Go ใน Assembly ใช้ทำอะไร?", options: ["บีบอัดไฟล์ให้เป็น .zip ธรรมดา", "รวบรวมไฟล์ Assembly, Part, Drawing ที่เกี่ยวข้องทั้งหมดไปบันทึกไว้ในโฟลเดอร์เดียวกัน", "อัพโหลดไฟล์ขึ้น Cloud ทันที", "ลบไฟล์ขยะออกจากโปรเจค"], answer: 1 },
+            { category: "Assembly", question: "Sub-assembly คืออะไร?", options: ["ชิ้นงานที่เล็กที่สุดในระบบ", "การประกอบย่อย ที่ถูกดึงเข้าไปเป็นส่วนหนึ่งใน Assembly หลักอีกที", "คำสั่งสำหรับตัดชิ้นงานใน Assembly", "นามสกุลไฟล์ชนิดใหม่"], answer: 1 },
+            { category: "Assembly", question: "การแก้ไขรูปร่าง Part ในขณะที่เปิดหน้าต่าง Assembly อยู่ เรียกว่าการแก้ไขแบบใด?", options: ["Edit Feature", "Edit Material", "Edit Component (In-Context Editing)", "Edit Assembly"], answer: 2 },
+            { category: "Assembly", question: "เราสามารถเจาะรู (Extruded Cut) ข้ามชิ้นงานหลายๆ ชิ้นพร้อมกันที่ระดับ Assembly ได้หรือไม่?", options: ["ไม่ได้ ต้องเจาะในโหมด Part เท่านั้น", "ได้ โดยใช้คำสั่ง Assembly Features", "ได้ แต่ต้องรวมชิ้นงานเป็นชิ้นเดียวก่อน", "ได้เฉพาะรูสี่เหลี่ยมเท่านั้น"], answer: 1 },
+            { category: "Assembly", question: "การนำเข้า Part ตัวเดิมซ้ำๆ หลายครั้งใน Assembly สามารถทำได้อย่างรวดเร็วโดยวิธีใด?", options: ["กด Ctrl ค้างไว้แล้วคลิกซ้ายลาก Part เดิมที่มีอยู่แล้วออกมา", "กด Shift ค้างไว้แล้วลาก", "ต้องกด Insert Component ใหม่ทุกครั้ง", "ใช้คำสั่ง Mirror เท่านั้น"], answer: 0 },
+            { category: "Assembly", question: "Toolbox ใน SolidWorks Assembly มีไว้ทำอะไร?", options: ["เก็บเครื่องมือวาดเส้น Sketch", "คลังชิ้นส่วนมาตรฐานอุตสาหกรรม เช่น น็อต สกรู แหวนรอง เฟือง", "เก็บปลั๊กอินเสริมของโปรแกรม", "เครื่องมือสำหรับจำลองการไหล"], answer: 1 },
+            { category: "Assembly", question: "หากต้องการให้ชิ้นส่วน 2 ชิ้นขยับไปพร้อมๆ กันแบบมีสัดส่วน (เช่น เฟืองหมุน 1 รอบ อีกตัวหมุน 2 รอบ) ต้องใช้ Mate ชนิดใด?", options: ["Concentric Mate", "Gear Mate", "Lock Mate", "Angle Mate"], answer: 1 },
+            { category: "Assembly", question: "คำสั่งใดใช้ตรวจสอบระยะห่างที่น้อยที่สุด (ช่องว่าง) ระหว่างชิ้นงาน 2 ชิ้น?", options: ["Measure", "Clearance Verification", "Interference Detection", "Mass Properties"], answer: 1 },
+            { category: "Assembly", question: "หากสัญลักษณ์หน้า Part ใน FeatureManager มีเครื่องหมาย (-) หมายความว่าอย่างไร?", options: ["ชิ้นงานมีข้อผิดพลาด", "ชิ้นงานถูกตรึงไว้ (Fixed)", "ชิ้นงานยังไม่ได้ถูกกำหนด Mate ให้ล็อกตำแหน่งครบทุกองศาอิสระ (Under Defined)", "ชิ้นงานถูกซ่อนอยู่"], answer: 2 },
+            { category: "Assembly", question: "Mate ชนิดใดที่ใช้ล็อกการเคลื่อนที่ทุกทิศทางและทุกองศาอิสระของชิ้นงานเข้าด้วยกันแบบตายตัว?", options: ["Coincident Mate", "Concentric Mate", "Lock Mate", "Parallel Mate"], answer: 2 },
+            { category: "Assembly", question: "การเซฟไฟล์ Assembly โปรแกรมจะทำการเซฟข้อมูลในลักษณะใด?", options: ["เก็บรูปร่าง 3D ทั้งหมดไว้ในไฟล์ .sldasm เพียงไฟล์เดียว", "เก็บเฉพาะพิกัดและการอ้างอิงตำแหน่งลิงก์ไปยังไฟล์ .sldprt ตัวจริง", "แปลงเป็นไฟล์ PDF อัตโนมัติ", "รวมไฟล์ Part ให้กลายเป็นก้อนเดียวแก้ไขไม่ได้"], answer: 1 },
+            { category: "Assembly", question: "ข้อควรระวังหลักเมื่อมีการย้ายไฟล์ .sldprt ไปโฟลเดอร์อื่น หลังจากที่ประกอบใน .sldasm แล้วคืออะไร?", Assembly: "Assembly", options: ["สีของชิ้นงานจะเปลี่ยนไป", "ความสัมพันธ์ Mate จะหายไปทั้งหมด", "Assembly จะหาไฟล์ชิ้นงานไม่พบและขึ้นแจ้งเตือน (Broken Link)", "ไฟล์ชิ้นงานจะถูกลบอัตโนมัติ"], answer: 2 },
+
+            // ================= DRAWING (30 ข้อ) =================
+            { category: "Drawing", question: "นามสกุลไฟล์ของภาพฉาย (Drawing) ใน SolidWorks คืออะไร?", options: [".sldprt", ".sldasm", ".slddrw", ".dxf"], answer: 2 },
+            { category: "Drawing", question: "คำสั่งใดใช้สำหรับดึงภาพฉาย 3 มุมมองมาตรฐาน (Front, Top, Right) เข้ามาในกระดาษแบบอัตโนมัติ?", options: ["Model View", "Standard 3 View", "Projected View", "Section View"], answer: 1 },
+            { category: "Drawing", question: "การสร้างภาพฉายโดยการ 'พับ' มุมมองออกมาจากภาพฉายหลัก (เช่น ดึงจากด้านหน้าเป็นด้านข้าง) คือคำสั่งใด?", options: ["Projected View", "Auxiliary View", "Detail View", "Crop View"], answer: 0 },
+            { category: "Drawing", question: "หากต้องการผ่าชิ้นงานเพื่อแสดงรายละเอียดรูเจาะด้านในบนแบบ Drawing ต้องใช้คำสั่งใด?", options: ["Broken-out Section", "Detail View", "Section View", "Crop View"], answer: 2 },
+            { category: "Drawing", question: "คำสั่ง Detail View (วงกลมล้อมกรอบแล้วขยาย) ใช้สำหรับทำอะไร?", options: ["ลบส่วนที่ไม่ต้องการทิ้ง", "ขยายบริเวณที่เล็กมากๆ ให้มีขนาดใหญ่ขึ้นเพื่อใส่ขนาดได้ชัดเจน", "ทำภาพตัดขวาง", "ย่อขนาดชิ้นงานลง"], answer: 1 },
+            { category: "Drawing", question: "หากเพลาของชิ้นงานมีความยาวมากเกินไปจนล้นหน้ากระดาษ แต่ตรงกลางไม่มีรายละเอียดอะไร ควรใช้คำสั่งใดตัดให้สั้นลง?", options: ["Crop View", "Break View", "Detail View", "Section View"], answer: 1 },
+            { category: "Drawing", question: "หากชิ้นงานมีพื้นผิวเอียง และต้องการสร้างภาพฉายที่ตั้งฉากกับพื้นผิวเอียงนั้นเพื่อบอกขนาด ต้องใช้คำสั่งใด?", options: ["Standard 3 View", "Projected View", "Auxiliary View", "Broken-out Section"], answer: 2 },
+            { category: "Drawing", question: "เส้นประ (Hidden Lines) ในหน้า Drawing มีไว้เพื่อแสดงอะไร?", options: ["เส้นบอกขนาด", "ขอบหรือรูปทรงที่ถูกบังอยู่ด้านหลัง/ด้านใน", "รอยเชื่อมโลหะ", "เส้นกึ่งกลางของวงกลม"], answer: 1 },
+            { category: "Drawing", question: "สัญลักษณ์กากบาทหรือเส้นตัดที่จุดศูนย์กลางของวงกลมใน Drawing เรียกว่าอะไร?", options: ["Centerline", "Center Mark", "Origin", "Crosshair"], answer: 1 },
+            { category: "Drawing", question: "เส้นประยาวสลับสั้นที่ลากผ่านจุดกึ่งกลางของรูปทรงกระบอกเพื่อบอกความเป็นสมมาตร เรียกว่าอะไร?", options: ["Center Mark", "Leader Line", "Centerline", "Dimension Line"], answer: 2 },
+            { category: "Drawing", question: "คำสั่งใดที่ดึงตัวเลขขนาด (Dimensions) ที่เราเคยตั้งไว้ในโหมด Part/Sketch มาแสดงใน Drawing อัตโนมัติ?", options: ["Smart Dimension", "Auto Dimension", "Model Items", "Reference Dimension"], answer: 2 },
+            { category: "Drawing", question: "ตารางแสดงรายการชิ้นส่วน (Bill of Materials หรือ BOM) มักถูกสร้างขึ้นเพื่อใช้ร่วมกับสิ่งใดในแบบ Drawing?", options: ["เส้น Centerline", "ลูกโป่งชี้หมายเลขชิ้นส่วน (Balloons)", "สัญลักษณ์ความหยาบผิว", "มุมมอง Isometric"], answer: 1 },
+            { category: "Drawing", question: "Auto Balloon ในหน้าต่าง Drawing มีหน้าที่ทำอะไร?", options: ["สร้างตาราง BOM อัตโนมัติ", "ดึงภาพฉายเข้ามากระดาษ", "ชี้ตัวเลข (Balloons) ให้กับชิ้นส่วนทุกชิ้นใน Assembly View ภายในคลิกเดียว", "ตรวจสอบว่าชิ้นส่วนไหนขาดหายไป"], answer: 2 },
+            { category: "Drawing", question: "แบบฟอร์มตารางด้านมุมล่างขวาของกระดาษ (ที่ใส่ชื่อผู้เขียนบริษัท, สเกล, วันที่) เรียกว่าอะไร?", options: ["Title Block", "Revision Table", "Bill of Materials", "Hole Table"], answer: 0 },
+            { category: "Drawing", question: "หากต้องการแก้ไขข้อความในตาราง Title Block หรือลายเส้นขอบกระดาษ ต้องทำอย่างไร?", options: ["คลิกขวาที่กระดาษ > Edit Sheet Format", "คลิกขวาที่กระดาษ > Edit Sheet", "ใช้คำสั่ง Smart Dimension", "สร้างไฟล์ใหม่"], answer: 0 },
+            { category: "Drawing", question: "คำสั่ง Hole Callout ใช้สำหรับทำอะไร?", options: ["บอกพิกัด X,Y ของรูเจาะ", "เจาะรูใหม่บนแบบ Drawing", "ดึงรายละเอียดของรูเจาะ (เส้นผ่าศูนย์กลาง, ความลึก, เกลียว) มาแสดงอย่างรวดเร็ว", "แสดงความหยาบผิวของรู"], answer: 2 },
+            { category: "Drawing", question: "เครื่องหมาย GD&T (Geometric Dimensioning and Tolerancing) ใช้สำหรับกำหนดอะไรบนแบบวาด?", options: ["สีของชิ้นงาน", "พิกัดความเผื่อทางเรขาคณิต เช่น ความตรง, ความเรียบ, ความขนาน", "น้ำหนักของชิ้นงาน", "วันที่ผลิตชิ้นงาน"], answer: 1 },
+            { category: "Drawing", question: "Surface Finish Symbol (สัญลักษณ์รูปสามเหลี่ยมหรือเครื่องหมายติ๊กถูกบนเส้น) ใช้บอกอะไร?", options: ["สีของพื้นผิว", "ความหยาบหรือความเรียบของการตกแต่งผิวชิ้นงาน", "ขนาดของชิ้นงาน", "ชนิดของวัสดุ"], answer: 1 },
+            { category: "Drawing", question: "สเกลแบบ 1:2 (Scale 1:2) หมายความว่าอย่างไร?", options: ["ภาพในแบบใหญ่กว่าของจริง 2 เท่า", "ภาพในแบบและของจริงมีขนาดเท่ากัน", "ภาพในแบบมีขนาดเล็กลงครึ่งหนึ่ง (1 ส่วน 2) ของขนาดชิ้นงานจริง", "ภาพวาดไม่สามารถอ้างอิงขนาดจริงได้"], answer: 2 },
+            { category: "Drawing", question: "ถ้าต้องการบอกขนาดแบบ Ordinate Dimension (การบอกขนาดแบบต่อเนื่องจากจุดศูนย์) ต้องเลือกจุดใดเป็นจุดแรก?", options: ["จุดศูนย์กลางกระดาษ", "ขอบไหนก็ได้", "จุดอ้างอิงศูนย์ (0,0) ของแกนการวัด", "จุดศูนย์กลางของชิ้นงานเสมอ"], answer: 2 },
+            { category: "Drawing", question: "คำสั่งใดใช้เขียนข้อความอธิบายเพิ่มเติมลงในกระดาษแบบ (เช่น 'All chamfers 1mm')?", options: ["Text", "Note", "Label", "Annotation"], answer: 1 },
+            { category: "Drawing", question: "หากต้องการบันทึกหน้า Drawing เป็นไฟล์เอกสารเพื่อให้คนอื่นเปิดดูได้โดยไม่ต้องมีโปรแกรม SolidWorks ควร Save As เป็นไฟล์สกุลใด?", options: [".slddrw", ".dwg", ".pdf", ".igs"], answer: 2 },
+            { category: "Drawing", question: "Revision Table มักจะถูกเพิ่มเข้ามาในแบบ Drawing เพื่อวัตถุประสงค์ใด?", options: ["บอกรายการชิ้นส่วนทั้งหมด", "บันทึกประวัติการแก้ไขและอัพเดทเวอร์ชันของแบบวาด", "แสดงพิกัดของรูเจาะ", "คำนวณต้นทุนชิ้นงาน"], answer: 1 },
+            { category: "Drawing", question: "การนำไฟล์ .slddrw ไปเปิดในคอมพิวเตอร์เครื่องอื่น จะแสดงภาพได้สมบูรณ์ก็ต่อเมื่ออะไร?", options: ["มีไฟล์ .slddrw อย่างเดียวก็พอ", "ต้องนำไฟล์ .sldprt หรือ .sldasm ที่อ้างอิงถึงไปด้วย", "เปลี่ยนชื่อไฟล์ให้สั้นลง", "ต้องต่ออินเทอร์เน็ต"], answer: 1 },
+            { category: "Drawing", question: "Display Style แบบ 'Hidden Lines Visible' บนภาพฉาย จะส่งผลให้ภาพเป็นอย่างไร?", options: ["แสดงภาพเป็นก้อนทึบแสง (Shaded)", "แสดงเฉพาะเส้นขอบนอกเท่านั้น", "แสดงเส้นขอบนอกและเส้นประของส่วนที่ถูกบังอยู่ภายใน", "ภาพกลายเป็นภาพสเกตช์ดินสอ"], answer: 2 },
+            { category: "Drawing", question: "Tangent Edge ใน Drawing หมายถึงอะไร?", options: ["ขอบของกระดาษแบบ", "เส้นขอบหลอกที่เกิดจากรอยต่อของผิวโค้งมน (Fillet) กับผิวเรียบ", "เส้นบอกขนาดมุม", "จุดศูนย์กลางวงกลม"], answer: 1 },
+            { category: "Drawing", question: "การเพิ่มหน้ากระดาษแผ่นที่สองในไฟล์ Drawing เดียวกัน สามารถทำได้โดยวิธีใด?", options: ["กด Add Sheet ที่แถบด้านล่างหน้าจอ", "File > New", "Insert > Component", "ไม่สามารถทำได้ 1 ไฟล์มีได้แค่ 1 แผ่น"], answer: 0 },
+            { category: "Drawing", question: "Hole Table คืออะไร?", options: ["ตารางบอกรายการอะไหล่", "ตารางสรุปตำแหน่ง X, Y และขนาดของรูเจาะทั้งหมดบนชิ้นงาน", "ตารางแก้ไขประวัติการวาด", "ตารางเปรียบเทียบวัสดุ"], answer: 1 },
+            { category: "Drawing", question: "คำสั่ง Crop View แตกต่างจาก Detail View อย่างไร?", options: ["Crop View ใช้ขยายภาพให้ใหญ่ขึ้น", "Crop View จะตัดภาพให้เหลือเฉพาะส่วนที่อยู่ในวง/เส้นสเกตช์ โดยซ่อนส่วนที่เหลือของภาพฉายนั้นทิ้งไป", "Detail View สร้างภาพใหม่ ส่วน Crop View สร้างตาราง", "ไม่ต่างกันเลย"], answer: 1 },
+            { category: "Drawing", question: "เมื่อมีการแก้ไขขนาดในหน้าต่าง Drawing (ที่ดึงมาจาก Model Items) จะส่งผลต่อชิ้นงาน 3D (Part) อย่างไร?", options: ["ไม่มีผลใดๆ กับ Part", "ไฟล์ Part จะพัง", "ขนาดของ 3D Part จะถูกอัพเดทเปลี่ยนตามไปด้วย (Bi-directional associativity)", "ต้องสร้าง Part ใหม่เท่านั้น"], answer: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let isAnswerSubmitted = false;
+
+        // อ้างอิงถึง Elements ต่างๆ
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressText = document.getElementById('question-progress');
+        const categoryBadge = document.getElementById('category-badge');
+        const scoreLiveText = document.getElementById('score-live');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        // ฟังก์ชันอัพเดทสไตล์ของ Badge หมวดหมู่
+        function updateCategoryBadge(category) {
+            categoryBadge.textContent = category;
+            
+            // รีเซ็ตสีทั้งหมดก่อน
+            categoryBadge.classList.remove('text-purple-700', 'bg-purple-100', 'border-purple-200',
+                                           'text-blue-700', 'bg-blue-100', 'border-blue-200',
+                                           'text-green-700', 'bg-green-100', 'border-green-200');
+
+            // กำหนดสีตามหมวดหมู่
+            if (category === "Part Modeling") {
+                categoryBadge.classList.add('text-purple-700', 'bg-purple-100', 'border-purple-200');
+            } else if (category === "Assembly") {
+                categoryBadge.classList.add('text-blue-700', 'bg-blue-100', 'border-blue-200');
+            } else if (category === "Drawing") {
+                categoryBadge.classList.add('text-green-700', 'bg-green-100', 'border-green-200');
+            }
+        }
+
+        // ฟังก์ชันเริ่มต้นโหลดข้อสอบ
+        function loadQuestion() {
+            // รีเซ็ตค่าสำหรับการตอบข้อใหม่
+            selectedOption = null;
+            isAnswerSubmitted = false;
+            nextBtn.disabled = true;
+            nextBtn.textContent = "ยืนยันคำตอบ";
+            nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+            // อัพเดทสถานะด้านบน
+            progressText.textContent = `ข้อ ${currentQuestion + 1} / ${quizData.length}`;
+            scoreLiveText.textContent = `คะแนนปัจจุบัน: ${score}`;
+
+            const qData = quizData[currentQuestion];
+            questionText.textContent = qData.question;
+            updateCategoryBadge(qData.category);
+            
+            // สร้างปุ่มตัวเลือก
+            optionsContainer.innerHTML = '';
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 border-2 border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 focus:outline-none";
+                btn.innerHTML = `<span class="inline-block w-8 text-gray-400 font-bold">${String.fromCharCode(65 + index)}.</span> <span>${opt}</span>`;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // ฟังก์ชันเมื่อผู้ใช้คลิกเลือกตัวเลือก
+        function selectOption(index, btnElement) {
+            // ถ้ายืนยันคำตอบไปแล้ว ไม่ให้คลิกเปลี่ยน
+            if (isAnswerSubmitted) return;
+
+            selectedOption = index;
+            
+            // ล้างสไตล์สีน้ำเงินจากทุกปุ่ม
+            const allOptions = optionsContainer.children;
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.remove('option-selected');
+            }
+            
+            // เพิ่มสไตล์สีน้ำเงินให้ปุ่มที่เลือก
+            btnElement.classList.add('option-selected');
+            
+            // เปิดให้กดปุ่มยืนยันได้
+            nextBtn.disabled = false;
+        }
+
+        // ฟังก์ชันเมื่อกดปุ่ม ยืนยันคำตอบ / ข้อถัดไป
+        function nextQuestion() {
+            // กรณีที่กำลังกด 'ยืนยันคำตอบ' เพื่อตรวจข้อปัจจุบัน
+            if (!isAnswerSubmitted) {
+                checkAnswer();
+                isAnswerSubmitted = true;
+                
+                // เปลี่ยนข้อความปุ่ม
+                if (currentQuestion < quizData.length - 1) {
+                    nextBtn.textContent = "ไปข้อถัดไป ➔";
+                } else {
+                    nextBtn.textContent = "ดูผลคะแนน";
+                }
+                
+                // เปลี่ยนสีปุ่มเป็นสีเขียว
+                nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                return;
+            }
+
+            // กรณีที่กด 'ไปข้อถัดไป' หรือ 'ดูผลคะแนน'
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                // เลื่อนหน้าจอกลับขึ้นไปด้านบนสำหรับข้อใหม่ (รองรับมือถือ)
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                loadQuestion();
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showResults();
+            }
+        }
+
+        // ฟังก์ชันตรวจคำตอบและเฉลยสี
+        function checkAnswer() {
+            const qData = quizData[currentQuestion];
+            const allOptions = optionsContainer.children;
+            
+            // วนลูปเพื่อแสดงสี เขียว(ถูก) และ แดง(ผิด)
+            for (let i = 0; i < allOptions.length; i++) {
+                const btn = allOptions[i];
+                // ปิดไม่ให้ hover หรือกดซ้ำได้อีก
+                btn.disabled = true;
+                btn.classList.add('cursor-default');
+
+                if (i === qData.answer) {
+                    // ข้อที่ถูกต้อง -> พื้นหลังสีเขียวอ่อน ขอบเขียว
+                    btn.classList.remove('border-gray-200', 'option-selected');
+                    btn.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                    btn.innerHTML += ` <span class="float-right text-green-600 font-bold bg-white px-2 py-0.5 rounded shadow-sm text-sm">✓ ถูกต้อง</span>`;
+                } else if (i === selectedOption && selectedOption !== qData.answer) {
+                    // ข้อที่เลือกแต่ผิด -> พื้นหลังสีแดงอ่อน ขอบแดง
+                    btn.classList.remove('border-gray-200', 'option-selected');
+                    btn.classList.add('bg-red-50', 'border-red-400', 'text-red-700');
+                    btn.innerHTML += ` <span class="float-right text-red-500 font-bold bg-white px-2 py-0.5 rounded shadow-sm text-sm">✗ ผิด</span>`;
+                } else {
+                    // ข้ออื่นที่ไม่ได้เลือกและไม่ถูก ให้สีจางลง
+                    btn.classList.add('opacity-50');
+                }
+            }
+
+            // นับคะแนน
+            if (selectedOption === qData.answer) {
+                score++;
+                scoreLiveText.textContent = `คะแนนปัจจุบัน: ${score}`;
+            }
+        }
+
+        // ฟังก์ชันแสดงหน้าผลคะแนนรวม
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            document.getElementById('final-score').textContent = `${score} / ${quizData.length}`;
+            
+            const messageEl = document.getElementById('score-message');
+            const percentage = (score / quizData.length) * 100;
+            
+            if (percentage === 100) {
+                messageEl.textContent = "🏆 ไร้ที่ติ! คุณคือผู้เชี่ยวชาญ SolidWorks ระดับตัวจริง!";
+                messageEl.className = "text-xl mt-4 text-green-600 font-bold";
+            } else if (percentage >= 80) {
+                messageEl.textContent = "🌟 ยอดเยี่ยมมาก พื้นฐานทั้ง 3 หมวดหมู่ของคุณแน่นสุดๆ";
+                messageEl.className = "text-xl mt-4 text-blue-600 font-bold";
+            } else if (percentage >= 50) {
+                messageEl.textContent = "👍 สอบผ่านเกณฑ์! แนะนำให้ทบทวนฟังก์ชั่นบางส่วนเพิ่มเติม";
+                messageEl.className = "text-xl mt-4 text-yellow-600 font-bold";
+            } else {
+                messageEl.textContent = "💪 ต้องฝึกฝนและทบทวนเพิ่มเติมนะ ลองทำใหม่อีกครั้ง!";
+                messageEl.className = "text-xl mt-4 text-red-600 font-bold";
+            }
+        }
+
+        // ฟังก์ชันเริ่มทำแบบทดสอบใหม่
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            quizScreen.classList.remove('hidden');
+            resultScreen.classList.add('hidden');
+            loadQuestion();
+        }
+
+        // โหลดข้อแรกเมื่อเปิดหน้าเว็บ
+        loadQuestion();
+
+    </script>
+</body>
+</html>
